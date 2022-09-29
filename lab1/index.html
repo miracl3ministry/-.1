@@ -512,36 +512,36 @@
         };
 
         this.inputFromAlert = () => {
-          let a = prompt("Введите матрице в формате [...][...][...]");
-          let arr = [];
-          /*
-          [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-          [0,0,0,0,0,1,1,0,0,0,0,0,0,0,0]
-          [0,1,0,0,0,0,1,0,0,0,0,0,0,0,0]
-          [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
-          [1,1,0,1,0,1,0,1,1,0,0,0,0,0,0]
-          [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]
-          [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-          [0,0,0,0,0,0,0,1,0,1,0,0,1,0,0]
-          [0,0,0,0,0,1,0,0,1,0,1,0,1,0,0]
-          [0,0,0,0,0,0,1,0,0,0,0,0,0,1,1]
-          [0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
-          [0,0,0,0,0,0,0,0,0,0,0,1,0,1,0]
-          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
-          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            let a = prompt("Введите матрицу в формате [...]\n[...]\n[...]");
+            let arr = [];
+            /*
+            [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,1,1,0,0,0,0,0,0,0,0]
+            [0,1,0,0,0,0,1,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+            [1,1,0,1,0,1,0,1,1,0,0,0,0,0,0]
+            [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,0,0,1,0,1,0,0,1,0,0]
+            [0,0,0,0,0,1,0,0,1,0,1,0,1,0,0]
+            [0,0,0,0,0,0,1,0,0,0,0,0,0,1,1]
+            [0,0,0,0,0,0,0,1,1,0,0,0,0,0,0]
+            [0,0,0,0,0,0,0,0,0,0,0,1,0,1,0]
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-          [0,1,0,0,1,1,0,0,0,0]
-          [1,0,0,0,0,0,0,0,0,0]
-          [0,1,0,1,1,0,0,0,0,0]
-          [0,0,0,0,0,0,0,0,1,0]
-          [1,0,0,0,0,0,1,0,0,0]
-          [0,0,0,0,1,0,0,1,0,1]
-          [0,0,0,1,0,0,0,0,0,0]
-          [0,0,0,0,0,0,1,0,0,1]
-          [0,0,0,0,0,0,1,0,0,0]
-          [0,0,0,0,0,0,0,1,0,0]
-          */
+            [0,1,0,0,1,1,0,0,0,0]
+            [1,0,0,0,0,0,0,0,0,0]
+            [0,1,0,1,1,0,0,0,0,0]
+            [0,0,0,0,0,0,0,0,1,0]
+            [1,0,0,0,0,0,1,0,0,0]
+            [0,0,0,0,1,0,0,1,0,1]
+            [0,0,0,1,0,0,0,0,0,0]
+            [0,0,0,0,0,0,1,0,0,1]
+            [0,0,0,0,0,0,1,0,0,0]
+            [0,0,0,0,0,0,0,1,0,0]
+            */
           this.incidenceMatrix = [];
           this.adjacencyMatrix = [];
           this.edges = [];
@@ -596,7 +596,7 @@
         };
 
         this.createIncidenceMatrix = () => {
-          // создаеn массив матрицы инцеденций
+            // создает массив матрицы инцеденций
           let adjacencyMatrix = this.adjacencyMatrix;
           for (let i = 0; i < adjacencyMatrix.length; i++) {
             for (let j = 0; j < adjacencyMatrix[i].length; j++) {
@@ -616,13 +616,13 @@
           for (let i = 0; i < this.verticesCount; i++) {
             let incidenceMatrixRow = [];
             for (let j = 0; j < edges.length; j++) {
-              if (edges[j][0] == i) {
-                incidenceMatrixRow.push(1);
-              } else if (edges[j][1] == i) {
-                incidenceMatrixRow.push(-1);
-              } else {
-                incidenceMatrixRow.push(0);
-              }
+                if (edges[j][0] === i) {
+                    incidenceMatrixRow.push(1);
+                } else if (edges[j][1] === i) {
+                    incidenceMatrixRow.push(-1);
+                } else {
+                    incidenceMatrixRow.push(0);
+                }
             }
             this.incidenceMatrix.push(incidenceMatrixRow);
           }
@@ -724,42 +724,33 @@
       }
 
       function Solver(adjacencyMatrix, incidenceMatrix) {
-        this.graph = {};
-        this.adjacencyMatrix; // матрица смежностей
-        this.incidenceMatrix; // матрица инцидентности
-        this.multipleStructure;
-        this.reachableSet; // достижимое множество
-        this.counterreachableSet; // контрдостижимое множество
-        this.stronglyConnectedSubgraph = [];
-        this.reachableMatrix; // матрица достижимости
-        this.counterreachableMatrix; // матрица контрдостижимости
+          this.graph = {};
+          this.adjacencyMatrix; // матрица смежностей
+          this.incidenceMatrix; // матрица инцидентности
+          this.multipleStructure;
+          this.reachableSet; // достижимое множество
+          this.counterreachableSet; // контрдостижимое множество
+          this.stronglyConnectedSubgraph = []; // сильно связанный подграф
+          this.reachableMatrix; // матрица достижимости
+          this.counterreachableMatrix; // матрица контрдостижимости
 
-        // this.start = () => {
-        //   this.adjacencyMatrix = interface.adjacencyMatrix;
-        //   this.incidenceMatrix = interface.incidenceMatrix;
-        //   this.MultipleStructureDefinition();
-        //   this.reachableSetDefinition();
-        //   this.findStronglyConnectedSubgraph();
-        //   // this.log();
-        // };
+          this.input = (adjacencyMatrix, incidenceMatrix) => {
+              this.adjacencyMatrix = adjacencyMatrix;
+              this.incidenceMatrix = incidenceMatrix;
+              this.MultipleStructureDefinition();
+              this.reachableSetDefinition();
+              this.MultipleStructureDefinitionWithNSteps(); // не работает
+              this.GetReachableAndCounterreachableMatrix();
 
-        this.input = (adjacencyMatrix, incidenceMatrix) => {
-          this.adjacencyMatrix = adjacencyMatrix;
-          this.incidenceMatrix = incidenceMatrix;
-          this.MultipleStructureDefinition();
-          this.reachableSetDefinition();
-          this.MultipleStructureDefinitionWithNSteps(); // не работает
-          this.GetReachableAndCounterreachableMatrix();
+              this.findStronglyConnectedSubgraph();
+              this.topologicalDecomposition();
+              // this.log();
+          };
 
-          this.findStronglyConnectedSubgraph();
-          this.topologicalDecomposition();
-          // this.log();
-        };
-
-        this.log = () => {
-          console.log("Матрица смежностей");
-          console.log(this.adjacencyMatrix);
-          console.log("Матрица инцидентности");
+          this.log = () => {
+              console.log("Матрица смежностей");
+              console.log(this.adjacencyMatrix);
+              console.log("Матрица инцидентности");
           console.log(this.incidenceMatrix);
           console.log("Множественное представление");
           console.log(this.multipleStructure);
