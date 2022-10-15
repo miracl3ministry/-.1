@@ -1,11 +1,18 @@
 "use strict";
+import Solver from './solver.js';
 
-class Interface {
+/*
+* Реализация лабораторной работы №2
+* Осторожно дальше идет немного говнокода
+* */
+
+class HtmlInterface {
+    // Класс для создания интерфейса на html и получения входных данных
     static instance;
 
     constructor() {
-        if (Interface.instance) { // проверяет существует ли данный класс в одном экземпляре
-            return Interface.instance;
+        if (HtmlInterface.instance) { // Проверяем существует ли данный класс в одном экземпляре
+            return HtmlInterface.instance;
         }
         this.verticesCount = 0;
         this.edges = [];
@@ -17,7 +24,7 @@ class Interface {
         this.Layout = Dracula.Layout.Spring;
         this.g = new this.Graph();
 
-        this.render = (r, n) => { // for custom elements
+        this.render = (r, n) => { // For custom elements
             // let label = r.text(0, 30, n.label).attr({ opacity: 0 });
             let set = r
                 .set()
@@ -53,9 +60,9 @@ class Interface {
         this.renderer.draw();
     };
 
-    // вызывается при нажатии на кнопку "очистить"
+    // Вызывается при нажатии на кнопку "очистить"
     checkUpAndStart() {
-        // костыль, нету this
+        // Костыль, нету this
         if (htmlInterface.incidenceMatrix.length !== 0) {
             htmlInterface.verticesCount = htmlInterface.incidenceMatrix.length;
             htmlInterface.drawAdjacencyMatrix();
@@ -66,7 +73,7 @@ class Interface {
     };
 
     addButtonListeners() {
-        // инпут с количеством вершин и создание инпутов для матрицы
+        // Инпут с количеством вершин и создание инпутов для матрицы
         document.getElementById("verticesCount").addEventListener("change", (e) => {
             let count = e.target.valueAsNumber;
             this.verticesCount = count;
@@ -85,11 +92,11 @@ class Interface {
                 e.target.style.outline = "1px solid red";
             }
         });
-        // clear button
+        // Clear button
         document.getElementById("clear_btn").addEventListener("click", this.clear);
-        // draw vertices button
+        // Draw vertices button
         document.getElementById("drawVertices_btn").addEventListener("click", this.checkUpAndStart);
-        // for tests
+        // For tests
         document.getElementById("output").addEventListener("click", this.output);
         document.getElementById("inputFromAlert").addEventListener("click", this.inputFromAlert);
     };
@@ -105,23 +112,23 @@ class Interface {
         this.renderer.draw();
     };
 
-    // рисует сильно связанный подграв, в этой лабе не надо
+    // Рисует сильно связанный подграф, в этой лабе не надо
     draw2() {
         console.log('draw2 func')
     };
 
-    // очищает графы и div
+    // Очищает графы и div
     clear() {
-        // костыль, из кнопок нету this
+        // Костыль, из кнопок нет this
         document.getElementById("div").innerText = "";
         htmlInterface.g = new htmlInterface.Graph();
     };
 
-    // обновляет матрицу смежностей
+    // Обновляет матрицу смежностей
     updateAdjacencyMatrix(e) {
         if (e.target.valueAsNumber > 0) e.target.valueAsNumber = 1;
         else e.target.valueAsNumber = 0;
-        // костыль, this хз куда показывает
+        // Костыль, this хз куда показывает
         htmlInterface.adjacencyMatrix[e.target.dataset.i][e.target.dataset.j] = e.target.valueAsNumber;
         document.querySelector('.adjacencyMatrixOut').innerText = htmlInterface.arrayToString(htmlInterface.adjacencyMatrix);
 
@@ -129,7 +136,7 @@ class Interface {
         htmlInterface.createInputsForIncidenceMatrix();
     };
 
-    // создает массив со всеми гранями
+    // Создает массив со всеми гранями
     createInputsForIncidenceMatrix() {
         let edges = [],
             edgesStringArr = [];
@@ -199,7 +206,7 @@ class Interface {
         document.getElementById("incidenceMatrix__inputs").append(table);
     };
 
-    // обновляет матрицу инцидентности
+    // Обновляет матрицу инцидентности
     updateIncidenceMatrix(e) {
         let elChangeValue = document.querySelectorAll(`.incidenceMatrix__input[data-j="${e.target.dataset.j}"]`);
         if (elChangeValue.length !== 2) throw new Error(".incidenceMatrix__input error");
@@ -208,22 +215,22 @@ class Interface {
             else e.target.valueAsNumber = -1;
             let num = e.target.valueAsNumber;
             elChangeValue[1].valueAsNumber = num * -1;
-            this.incidenceMatrix[e.target.dataset.i][e.target.dataset.j] = num;
-            this.incidenceMatrix[elChangeValue[1].dataset.i][elChangeValue[1].dataset.j] = num * -1;
+            htmlInterface.incidenceMatrix[e.target.dataset.i][e.target.dataset.j] = num;
+            htmlInterface.incidenceMatrix[elChangeValue[1].dataset.i][elChangeValue[1].dataset.j] = num * -1;
         } else {
             if (e.target.valueAsNumber > 0) e.target.valueAsNumber = 1;
             else e.target.valueAsNumber = -1;
             let num = e.target.valueAsNumber;
             elChangeValue[0].valueAsNumber = num * -1;
-            this.incidenceMatrix[e.target.dataset.i][e.target.dataset.j] = num;
-            this.incidenceMatrix[elChangeValue[0].dataset.i][elChangeValue[0].dataset.j] = -1;
+            htmlInterface.incidenceMatrix[e.target.dataset.i][e.target.dataset.j] = num;
+            htmlInterface.incidenceMatrix[elChangeValue[0].dataset.i][elChangeValue[0].dataset.j] = -1;
         }
 
         document.querySelector(".incidenceMatrixOut").innerText = this.arrayToString(this.incidenceMatrix);
-        this.drawIncidenceMatrix();
+        htmlInterface.drawIncidenceMatrix();
     };
 
-    // рисует графы из матрицы смежностей
+    // Рисует графы из матрицы смежностей
     drawAdjacencyMatrix() {
         this.edges = [];
         let adjacencyMatrix = this.adjacencyMatrix;
@@ -251,7 +258,7 @@ class Interface {
         } else console.error("adjacency matrix: ", adjacencyMatrix);
     };
 
-    // проверка направления грава по матрице инцидентности
+    // Проверка направления графа по матрице инцидентности
     drawIncidenceMatrix() {
         let incidenceMatrix = this.incidenceMatrix;
         if (incidenceMatrix.length !== 0) {
@@ -285,7 +292,7 @@ class Interface {
         this.drawGraphsIn(document.getElementById("div"));
     };
 
-    // добавляем инпуты для матрицы смежностей
+    // Добавляет инпуты для матрицы смежностей
     createInputsForAdjacencyMatrix(count) {
         let table = document.createElement("table");
         let tableHeader = document.createElement("tr");
@@ -322,9 +329,9 @@ class Interface {
     };
 
     inputFromAlert() {
-        let a = prompt("Введите матрицу в формате \n[...]\n[...]\n[...]");
-        let arr = [];
-        a = a.replace(/[\n ]/gi, "").replace(/[\r]/gi, ";").split(";");
+        let a = prompt("Введите матрицу в формате \n[...]\n[...]\n[...]"),
+            arr = [];
+        a = a.replace(/[\n ]/gi, "").replace(/\r/gi, ";").split(";");
         if (!Array.isArray(a)) throw new Error("input not array");
         else {
             a.forEach((e) => {
@@ -353,7 +360,7 @@ class Interface {
         }
     };
 
-    // обновляет матрицу смежностей после текстового ввода
+    // Обновляет матрицу смежностей после текстового ввода
     updateAdjacencyMatrixFromInput() {
         this.createInputsForAdjacencyMatrix(this.adjacencyMatrix.length);
         let inputs = document.getElementById("adjacencyMatrix__inputs");
@@ -366,7 +373,7 @@ class Interface {
         document.querySelector(".adjacencyMatrixOut").innerText = this.arrayToString(this.adjacencyMatrix);
     };
 
-    // создает массив матрицы инцеденций
+    // Создает массив матрицы инциденций
     createsIncidenceMatrix() {
         let adjacencyMatrix = this.adjacencyMatrix;
         for (let i = 0; i < adjacencyMatrix.length; i++) {
@@ -398,9 +405,18 @@ class Interface {
     };
 
     output() {
-        if (this.adjacencyMatrix.length > 2) {
-            solver.input(this.adjacencyMatrix);
-            this.log('output')
+        let adjacencyMatrix = htmlInterface.adjacencyMatrix;
+        console.log(adjacencyMatrix);
+        if (adjacencyMatrix.length > 2) {
+            // Achtung, attention, внимание: все отсчеты и индексы начинаются с 0!
+            let answer = Solver.solve(adjacencyMatrix);
+            console.log('output', answer);
+
+            let str = 'Матрицы смежностей А\n';
+            for (let i = 0; i < answer['aInDegree'].length; i++) {
+                str += `A^${i} \n${htmlInterface.arrayToString(answer['aInDegree'][i])}`
+            }
+            document.querySelector(".out1").innerText = str;
         }
     };
 
@@ -414,11 +430,9 @@ class Interface {
 
     log() {
         console.log(this);
-        console.log(Interface.instance)
+        console.log(HtmlInterface.instance)
     }
 }
 
-let htmlInterface = new Interface();
-// console.log(htmlInterface);
-htmlInterface.log()
+let htmlInterface = new HtmlInterface();
 htmlInterface.addButtonListeners()
