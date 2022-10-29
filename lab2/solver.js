@@ -13,7 +13,8 @@ class Solver {
         this.obj['aInDegree'] = this.getAllAInDegree(this.obj['adjacencyMatrix']);
         // 3. Проверка на наличие контура
         let num = this.obj['aInDegree'][this.obj['aInDegree'].length - 1][0][0]
-        if (!Number.isFinite(num) || Number.isNaN(num)) {
+        let circuitBool = this.checkCircuit(this.obj['aInDegree']);
+        if (!Number.isFinite(num) || Number.isNaN(num) || circuitBool) {
             // В данной лабе нет контуров, при появлении остановится
             this.obj['circuit'] = true;
             console.error('circuit');
@@ -22,7 +23,7 @@ class Solver {
             this.obj['reachableMatrix'] = this.getReachableMatrix(this.obj['aInDegree']);
             this.obj['aInDegreeWithSums'] = this.getAllAInDegreeWithSums(this.obj['aInDegree']);
             this.obj['orderElements'] = this.determiningOrderElement(this.obj['aInDegreeWithSums']);
-            this.obj['systemTact'] = this.obj['Pij'].length;// 2. Тактность системы
+            this.obj['systemTact'] = this.obj['Pij'].length - 1;// 2. Тактность системы
             this.obj['streamInputElements'] = this.definitionOfStreamInputElements(this.obj['aInDegreeWithSums']);
             this.obj['streamOutputElements'] = this.definitionOfStreamOutputElements(this.obj['aInDegreeWithSums']);
             this.obj['danglingVertices'] = this.definitionOfDanglingVertices(this.obj['aInDegreeWithSums']);
@@ -85,19 +86,19 @@ class Solver {
 
     // 1. Определение порядков элемента
     static determiningOrderElement(aInDegreeWithSums) {
-        let Pij = []; // Тут лежат вершины нулевого порядка
-        let orderElements = Array(this.obj["verticesCount"]).fill(0);
-        for (let a = 1; a < aInDegreeWithSums[0].length - 1; a++) {
+        let Pij = []; // Элементы n-го порядка
+        let orderElements = Array(this.obj["verticesCount"]).fill(-1);
+        for (let a = 1; a < aInDegreeWithSums.length; a++) {
             let j0 = [], j1 = [],
                 A0lastRow = aInDegreeWithSums[a - 1][aInDegreeWithSums[a - 1].length - 1],
                 A1lastRow = aInDegreeWithSums[a][aInDegreeWithSums[a].length - 1];
             for (let i = 0; i < A0lastRow.length; i++) {
-                if (A0lastRow[i] > 0) j0.push(i)
-                if (A1lastRow[i] === 0) j1.push(i)
+                if (A0lastRow[i] > 0) j0.push(i);
+                if (A1lastRow[i] === 0) j1.push(i);
             }
             let zeroOrderVertices = this.arrayConjunction(j0, j1);
             Pij.push(zeroOrderVertices);
-            zeroOrderVertices.forEach(e => orderElements[e]++);
+            j0.forEach(e => orderElements[e]++);
         }
         this.obj['Pij'] = Pij;
         return orderElements;
@@ -140,36 +141,20 @@ class Solver {
     }
 
     // 7. Определение числа путей длинной λ
-    static determinationOfNumberOfPaths(lambda, aInDegree) {
-        let answer = [];
-        if (!Number.isInteger(lambda)) throw new Error('Input error: lambda not integer')
-        for (let a = 1; a < aInDegree.length; a++) {
-            for (let i = 0; i < aInDegree[a].length; i++) {
-                for (let j = 0; j < aInDegree[a][i].length; j++) {
-                    if (aInDegree[a][i][j] === lambda) {
-                        answer.push([i, j]);
-                    }
-                }
-            }
-        }
-        return answer;
+    static determinationOfNumberOfPaths(from, to, lambdaMatrix) {
+        return lambdaMatrix[from][to];
     }
 
     // 8. Определение всевозможных путей длинной λ
-    static getNumberOfPathsBetween2Elements(element1, element2) {
-        try {
-            return this.obj['reachableMatrix'][element1][element2];
-        } catch (e) {
-            console.error(e)
-        }
-        return false;
+    static getNumberOfPathsBetween2Elements(from, to, reachableMatrix) {
+        return reachableMatrix[from][to]
     }
 
     // 9. Определение элементов участвующих в формировании данного
-    static getElementsThatFormThis(element) {
+    static getElementsThatFormThis(element, reachableMatrix) {
         // Возвращает ответ в формате [[формируют элемент],[элемент формирует]]
+        if (element > reachableMatrix.length) return false;
         let answer = [[], []]
-        let reachableMatrix = this.obj['reachableMatrix'];
         for (let i = 0; i < reachableMatrix.length; i++) {
             if (reachableMatrix[i][element] !== 0) answer[0].push(i)
         }
@@ -177,6 +162,18 @@ class Solver {
             if (reachableMatrix[element][i] !== 0) answer[1].push(i)
         }
         return answer;
+    }
+
+    // Проверка на контур, возвращает true|false
+    static checkCircuit(arrayMatrix) {
+        for (let a = 1; a < arrayMatrix.length; a++) {
+            for (let i = 0; i < arrayMatrix[a].length; i++) {
+                for (let j = 0; j < arrayMatrix[a][i].length; j++) {
+                    if (i === j && arrayMatrix[a][i][j] !== 0) return true;
+                }
+            }
+        }
+        return false;
     }
 
     // Перемножение матриц
@@ -202,6 +199,7 @@ class Solver {
     // Валидация инпута и присвоение матрицы в this
     static input(adjacencyMatrix) {
         if (Array.isArray(adjacencyMatrix)) {
+            this.obj = {};
             this.obj['adjacencyMatrix'] = adjacencyMatrix;
             this.obj['verticesCount'] = adjacencyMatrix.length
             // this.obj['adjacencyMatrix'] = JSON.parse(JSON.stringify(adjacencyMatrix)); // Copy

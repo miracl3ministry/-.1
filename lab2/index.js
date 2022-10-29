@@ -1,5 +1,6 @@
 "use strict";
 import Solver from './solver.js';
+import solver from "./solver.js";
 
 /*
 * Реализация лабораторной работы №2
@@ -66,6 +67,7 @@ class HtmlInterface {
         if (htmlInterface.incidenceMatrix.length !== 0) {
             htmlInterface.verticesCount = htmlInterface.incidenceMatrix.length;
             htmlInterface.drawAdjacencyMatrix();
+            htmlInterface.createsIncidenceMatrix();
             htmlInterface.drawIncidenceMatrix();
         } else {
             htmlInterface.drawAdjacencyMatrix();
@@ -110,11 +112,6 @@ class HtmlInterface {
 
         this.renderer = new this.Renderer(htmlElement, this.g, width, height);
         this.renderer.draw();
-    };
-
-    // Рисует сильно связанный подграф, в этой лабе не надо
-    draw2() {
-        console.log('draw2 func')
     };
 
     // Очищает графы и div
@@ -225,8 +222,7 @@ class HtmlInterface {
             htmlInterface.incidenceMatrix[e.target.dataset.i][e.target.dataset.j] = num;
             htmlInterface.incidenceMatrix[elChangeValue[0].dataset.i][elChangeValue[0].dataset.j] = -1;
         }
-
-        document.querySelector(".incidenceMatrixOut").innerText = this.arrayToString(this.incidenceMatrix);
+        document.querySelector(".incidenceMatrixOut").innerText = htmlInterface.arrayToString(htmlInterface.incidenceMatrix);
         htmlInterface.drawIncidenceMatrix();
     };
 
@@ -260,33 +256,17 @@ class HtmlInterface {
 
     // Проверка направления графа по матрице инцидентности
     drawIncidenceMatrix() {
-        let incidenceMatrix = this.incidenceMatrix;
-        if (incidenceMatrix.length !== 0) {
-            for (let i = 0; i < this.edges.length; i++) {
-                const element = this.edges[i];
-                if (incidenceMatrix[element.from][i] === -1) {
-                    let tmp = element.from;
-                    element.from = element.to;
-                    element.to = tmp;
-                }
-            }
-        } else console.error("incidence matrix: ", incidenceMatrix);
         // рисует графы из this.edges
         this.clear();
-        let style = {};
-        style["directed"] = true;
-        style["font-size"] = "20px";
-        style["fill-opacity"] = "1";
-        // style["label-style"] = "background-color: #000";
         for (let i = 0; i < this.edges.length; i++) {
-            let style = {};
-            style["directed"] = true;
-            style["font-size"] = "20px";
-            style["fill-opacity"] = "1";
-            style["label"] = (i + 1).toString();
+            let style = {
+                "directed": true,
+                "font-size": '18px',
+                "fill-opacity": '1',
+                "label": (i + 1).toString()
+            };
             this.g.addEdge((this.edges[i].from + 1).toString(), (this.edges[i].to + 1).toString(), {
-                // directed: true,
-                style: style, // баг с пропадающими стрелками после добавления стиля
+                style: style, // баг с пропадающими стрелками после добавления стиля, баг с label
             });
         }
         this.drawGraphsIn(document.getElementById("div"));
@@ -376,20 +356,18 @@ class HtmlInterface {
     // Создает массив матрицы инциденций
     createsIncidenceMatrix() {
         let adjacencyMatrix = this.adjacencyMatrix;
+        let edges = [], edgesStringArr = [];
         for (let i = 0; i < adjacencyMatrix.length; i++) {
             for (let j = 0; j < adjacencyMatrix[i].length; j++) {
                 if (adjacencyMatrix[i][j]) {
                     this.edges.push({from: i, to: j});
+                    edges.push([i, j]);
+                    edgesStringArr.push([i, j].toString());
                 }
             }
         }
-        let edges = [], edgesStringArr = [];
-        this.edges.forEach((e) => {
-            edges.push([e.from, e.to]);
-            edgesStringArr.push([e.from, e.to].toString());
-        });
         this.incidenceMatrix = [];
-        for (let i = 0; i < this.verticesCount; i++) {
+        for (let i = 0; i < edges.length; i++) {
             let incidenceMatrixRow = [];
             for (let j = 0; j < edges.length; j++) {
                 if (edges[j][0] === i) {
@@ -404,21 +382,210 @@ class HtmlInterface {
         }
     };
 
+    // Вывод результатов. Очень длинный метод, лучше разбить на мелкие потом
     output() {
+        // Achtung, attention: все отсчеты и индексы начинаются с 0!
         let adjacencyMatrix = htmlInterface.adjacencyMatrix;
-        console.log(adjacencyMatrix);
         if (adjacencyMatrix.length > 2) {
-            // Achtung, attention, внимание: все отсчеты и индексы начинаются с 0!
+            document.querySelector(".out1").innerHTML = "";
+            document.querySelector(".out2").innerHTML = "";
             let answer = Solver.solve(adjacencyMatrix);
-            console.log('output', answer);
-
-            let str = 'Матрицы смежностей А\n';
-            for (let i = 0; i < answer['aInDegree'].length; i++) {
-                str += `A^${i} \n${htmlInterface.arrayToString(answer['aInDegree'][i])}`
+            if (!answer['circuit']) {
+                htmlInterface.outputAdjacencyMatrix(document.querySelector(".out1"), answer['aInDegreeWithSums']);
+                let reachableMatrixSums = Solver.getAllAInDegreeWithSums([answer['reachableMatrix']]);
+                htmlInterface.outputReachableMatrix(document.querySelector(".out2"), reachableMatrixSums[0]);
+                htmlInterface.outputSystemProperties(document.querySelector(".out2"), answer);
+            } else {
+                document.querySelector(".out2").append("3. Обнаружен контур");
             }
-            document.querySelector(".out1").innerText = str;
         }
     };
+
+    // Вывод матриц смежности
+    outputAdjacencyMatrix(outputElement, matrixArray) {
+        outputElement.innerText = 'Матрицы смежностей А\n';
+        for (let i = 0; i < matrixArray.length; i++) {
+            let span = document.createElement('span');
+            let sup = document.createElement('sup');
+            sup.innerText = i.toString();
+            span.innerText = `A`;
+            span.append(sup);
+            let table = htmlInterface.matrixToHTMLTable(matrixArray[i], 'σ');
+            table.classList.add('table-with-borders', 'w-100');
+            // table.lastChild.appendChild(document.createElement("td"));
+            outputElement.append(span, table);
+        }
+    }
+
+    // Вывод матрицы достижимости
+    outputReachableMatrix(outputElement, matrix) {
+        outputElement.innerText = 'Матрица достижимости\n';
+        let reachableMatrixTable = htmlInterface.matrixToHTMLTable(matrix, 'σ');
+        reachableMatrixTable.classList.add('table-with-borders2', 'w-100');
+        let span = document.createElement('span');
+        span.innerText = `A(Σ) = `;
+        outputElement.append(span, reachableMatrixTable);
+    }
+
+    // Вывод свойств
+    outputSystemProperties(outputElement, answer) {
+        this.outputSystemProperty1(outputElement, answer); // 1
+        outputElement.append(`2. Определение «тактности» системы N=${answer['systemTact']}`);
+        outputElement.append(document.createElement('br'));
+        outputElement.append(`3. Наличие контура: ${answer['danglingVertices'] ? "Есть" : "Нету"}`);
+        outputElement.append(document.createElement('br'));
+        outputElement.append(`4. Определение входных элементов потока ${answer['streamInputElements'][0].map(e => "X" + (e + 1))}`);
+        outputElement.append(document.createElement('br'));
+        outputElement.append(`5. Определение выходных элементов потока ${answer['streamOutputElements'][0].map(e => "X" + (e + 1))}`);
+        outputElement.append(document.createElement('br'));
+        outputElement.append(`6. Определение висящих вершин: ${(answer['danglingVertices']) ? answer['danglingVertices'] : "Нету"}`);
+        outputElement.append(document.createElement('br'));
+        this.outputSystemProperty7(outputElement, answer); // 7
+        this.outputSystemProperty8(outputElement, answer); // 8
+        this.outputSystemProperty9(outputElement, answer); // 9
+    }
+
+    // 1: Определение порядка элементов.
+    outputSystemProperty1(outputElement, answer) {
+        let p = document.createElement('p');
+        outputElement.append("1. Определение порядков элемента\r\n");
+        for (let i = 0; i < answer['Pij'].length; i++) {
+            p.innerText += `π = ${i} вершины X: ${answer['Pij'][i].map(e => "X" + (e + 1))}\r\n`;
+            outputElement.append(p);
+        }
+        let orderTable = htmlInterface.matrixToHTMLTable([answer['orderElements']]);
+        orderTable.classList.add('table-with-borders2', 'w-100');
+        orderTable.querySelector("th").innerText = "j";
+        orderTable.querySelector("tr:last-child th").innerText = "π";
+        outputElement.append(orderTable);
+    }
+
+    // 7: Определение числа путей длиной λ
+    outputSystemProperty7(outputElement, answer) {
+        function getAnswer(from, to, lambda, span) {
+            let paths = Solver.determinationOfNumberOfPaths(from - 1, to - 1, answer['aInDegree'][lambda]),
+                str = 'пути';
+            if (paths % 10 > 4 || paths % 10 <= 0
+                || (paths % 100 > 10 && paths % 100 < 20)
+                || (paths > 4 && paths < 20)
+                || paths === undefined) str = 'путей';
+            else if (paths % 10 === 1) str = 'путь';
+            span.innerText = `Существует ${paths} ${str} длинной ${lambda}`;
+        }
+
+        let from = 1,
+            to = answer['adjacencyMatrix'].length,
+            lambda = 2,
+            span = document.createElement('span');
+        outputElement.append(`7. Определение числа путей длиной λ`, document.createElement('br'), `От`);
+        let inputFrom = this.createInputNumberElement(1, answer['adjacencyMatrix'].length, "form", 1);
+        inputFrom.onchange = e => {
+            from = e.target.valueAsNumber;
+            getAnswer(from, to, lambda, span);
+        }
+        outputElement.append(inputFrom, ' до');
+        let inputTo = this.createInputNumberElement(1, answer['adjacencyMatrix'].length, "to", answer['adjacencyMatrix'].length);
+        inputTo.onchange = e => {
+            to = e.target.valueAsNumber;
+            getAnswer(from, to, lambda, span);
+        }
+        outputElement.append(inputTo, ' λ =');
+        let inputLambda = this.createInputNumberElement(1, 1000, "λ = ", 2);
+        inputLambda.onchange = e => {
+            lambda = e.target.valueAsNumber;
+            getAnswer(from, to, lambda, span);
+        }
+        getAnswer(from, to, lambda, span);
+        outputElement.append(inputLambda, span, document.createElement('br'));
+    }
+
+    // 8: Определение всевозможных путей между двумя элементами
+    outputSystemProperty8(outputElement, answer) {
+        function getAnswer(from, to, span) {
+            let paths = Solver.getNumberOfPathsBetween2Elements(from - 1, to - 1, answer['reachableMatrix']),
+                str = 'различных пути';
+            if (paths % 10 > 4 || paths % 10 <= 0
+                || (paths % 100 > 10 && paths % 100 < 20)
+                || (paths > 4 && paths < 20)
+                || paths === undefined) str = 'различных путей';
+            else if (paths % 100 === 1) str = 'различный путь';
+            span.innerText = `существует ${paths} ${str}`;
+        }
+
+        let from = 1,
+            to = answer['adjacencyMatrix'].length,
+            span = document.createElement('span'),
+            inputFrom = this.createInputNumberElement(1, answer['adjacencyMatrix'].length, "from", 1),
+            inputTo = this.createInputNumberElement(1, answer['adjacencyMatrix'].length, "to", answer['adjacencyMatrix'].length);
+        outputElement.append(`8. Определение всевозможных путей между двумя элементами`, document.createElement('br'));
+        inputFrom.onchange = e => {
+            from = e.target.valueAsNumber;
+            getAnswer(from, to, span);
+        }
+        inputTo.onchange = (e) => {
+            to = e.target.valueAsNumber;
+            getAnswer(from, to, span)
+        }
+        getAnswer(from, to, span)
+        outputElement.append("От ", inputFrom, "до ", inputTo, span, document.createElement('br'));
+    }
+
+    // 9: Определение всех элементов, участвующих в формировании данного
+    outputSystemProperty9(outputElement, answer) {
+        let span = document.createElement('span'),
+            input = this.createInputNumberElement(1, answer['reachableMatrix'].length);
+        input.onchange = (e) => {
+            let ans = Solver.getElementsThatFormThis(e.target.valueAsNumber - 1, answer['reachableMatrix']),
+                str = "участвуют";
+            if (ans[0].length % 10 > 4 || ans[0].length % 10 <= 0
+                || (ans[0].length % 100 > 10 && ans[0].length % 100 < 20)
+                || (ans[0].length > 4 && ans[0].length < 20)) str = 'участвуют';
+            else if (ans[0].length % 100 === 1) str = 'участвует';
+            span.innerText = `(${ans[0].map(e => ++e)}) ${str} в формировании ${e.target.valueAsNumber}
+                ${e.target.valueAsNumber} участвует в формировании (${ans[1].map(e => ++e)})`;
+        }
+        outputElement.append(`9. Определение всех элементов, участвующих в формировании данного`, input, span);
+    }
+
+    createInputNumberElement(min, max, placeholder, value = 0) {
+        let input = document.createElement('input');
+        input.classList.add("incidenceMatrix__input");
+        input.type = "number";
+        input.min = min;
+        input.max = max;
+        if (placeholder) input.placeholder = placeholder;
+        if (value) input.value = Number(value);
+        return input;
+    }
+
+    matrixToHTMLTable(arr, lastWordInNames = false) {
+        let table = document.createElement("table");
+        let tableHeaderRow = document.createElement("tr");
+        let th = document.createElement("th");
+        // Header или первая строка таблицы
+        th.innerText = "i\\j";
+        tableHeaderRow.append(th);
+        for (let i = 0; i < arr[0].length; i++) {
+            let thJ = document.createElement('th');
+            thJ.innerText = (i === arr[0].length - 1 && lastWordInNames !== false) ? lastWordInNames : (i + 1).toString();
+            tableHeaderRow.append(thJ);
+        }
+        table.append(tableHeaderRow);
+        // Тело таблицы
+        for (let i = 0; i < arr.length; i++) {
+            let tr = document.createElement("tr");
+            let thI = document.createElement("th");
+            thI.innerText = (i === arr.length - 1 && lastWordInNames !== false) ? lastWordInNames : (i + 1).toString();
+            tr.append(thI);
+            for (let j = 0; j < arr[i].length; j++) {
+                let td = document.createElement('td');
+                td.innerText = "\t" + arr[i][j] + "\t";
+                tr.append(td);
+            }
+            table.append(tr);
+        }
+        return table;
+    }
 
     arrayToString(arr) {
         let str = "";
@@ -427,11 +594,6 @@ class HtmlInterface {
         }
         return str;
     };
-
-    log() {
-        console.log(this);
-        console.log(HtmlInterface.instance)
-    }
 }
 
 let htmlInterface = new HtmlInterface();

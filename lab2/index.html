@@ -28,6 +28,41 @@
         span {
             word-wrap: break-word;
         }
+
+        .table-with-borders tr:not(:last-of-type) {
+            border-bottom: 1px solid #999;
+        }
+
+        .table-with-borders th,
+        .table-with-borders td {
+            text-align: center;
+        }
+
+        .table-with-borders th:not(:last-of-type),
+        .table-with-borders tr:last-child td,
+        .table-with-borders tr:last-child th {
+            border: none;
+            border-right: 1px solid #999;
+        }
+
+        .table-with-borders td:not(:last-of-type) {
+            border: 1px solid #aaa;
+            border-radius: 1px;
+        }
+
+        .table-with-borders2 td,
+        .table-with-borders2 th {
+            border: 1px solid #aaa;
+            text-align: center;
+        }
+
+        .table-with-borders2 th:first-child {
+            border-left: none;
+        }
+
+        .table-with-borders2 tr:first-child th {
+            border-top: none;
+        }
     </style>
 </head>
 <body>
@@ -39,74 +74,69 @@
         <button type="button" class="btn btn-primary" id="drawVertices_btn">Нарисовать графы</button>
         <button type="button" class="btn btn-primary" id="output">Решить</button>
         <button type="button" class="btn btn-primary" id="inputFromAlert">Ввод текстом</button>
-        <div id="div2"></div>
-    </div>
-    <div class="col-6">
-        <div class="row">
-            <p class="out"></p>
-            <div class="col-6">
-                <p class="multipleStructure"></p>
-                <div class="row">
-                    <span class="out1 col-6"></span>
-                    <span class="out1-1 col-6"></span>
+        <div class="col-12 my-1">
+            <p>
+                Количество вершин
+                <input type="number" name="verticesCount" id="verticesCount" min="0" max="20"/>
+            </p>
+            <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Заполните матрицу смежности
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                         data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <div class="d-flex flex-row align-items-center g-5 flex-wrap">
+                                <div class="adjacencyMatrix" id="adjacencyMatrix__inputs"></div>
+                                <span class="adjacencyMatrixOut mx-3" data-description="Мб удалить потом"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-6">
-                <div class="row">
-                    <span class="out2 col-6"></span>
-                    <span class="out2-2 col-6"></span>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="row">
-                    <span class="out3 col-12"></span>
-                    <span class="out3-3 col-6"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-12 my-1">
-        <p>
-            Количество вершин
-            <input type="number" name="verticesCount" id="verticesCount" min="0" max="20"/>
-        </p>
-        <div class="accordion" id="accordionExample">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Заполните матрицу смежности
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                     data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <div class="d-flex flex-row align-items-center g-5 flex-wrap">
-                            <div class="adjacencyMatrix" id="adjacencyMatrix__inputs"></div>
-                            <span class="adjacencyMatrixOut mx-3" data-description="Мб удалить потом"></span>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Заполните матрицу инцидентности
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                         data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <div class="adjacencyMatrix" id="incidenceMatrix__inputs"></div>
+                            <span class="incidenceMatrixOut mx-3" data-description="Мб удалить потом"></span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        Заполните матрицу инцидентности
-                    </button>
-                </h2>
-                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                     data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        <div class="adjacencyMatrix" id="incidenceMatrix__inputs"></div>
-                        <span class="incidenceMatrixOut mx-3" data-description="Мб удалить потом"></span>
-                    </div>
+            <!-- <textarea name="adjacencyMatrix" id="adjacencyMatrix__textarea" cols="7" rows="1"></textarea> -->
+        </div>
+
+    </div>
+    <div class="col-6">
+        <div class="row">
+            <p class="out"></p>
+            <div class="col-5">
+                <div class="row">
+                    <div class="col-12 out1"></div>
                 </div>
             </div>
+            <div class="col-7">
+                <div class="row">
+                    <div class="out2"></div>
+                </div>
+            </div>
+            <!--            <div class="col-6">-->
+            <!--                <div class="row">-->
+            <!--                    <span class="out3 col-12"></span>-->
+            <!--                    <span class="out3-3 col-6"></span>-->
+            <!--                </div>-->
+            <!--            </div>-->
         </div>
-        <!-- <textarea name="adjacencyMatrix" id="adjacencyMatrix__textarea" cols="7" rows="1"></textarea> -->
     </div>
 </div>
 <script
