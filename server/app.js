@@ -23,9 +23,9 @@ app.get('/', (req, res) => {
         "    <title>Document</title>\n" +
         "  </head>\n" +
         "  <body>\n" +
-        "    <a href=\"./lab1\">Лабараторная работа 1</a>\n" +
+        "    <a href=\"./lab1\">Лабораторная работа 1</a>\n" +
         "    <br>\n" +
-        "    <a href=\"./lab2\">Лабараторная работа 2</a>\n" +
+        "    <a href=\"./lab2\">Лабораторная работа 2</a>\n" +
         "  </body>\n" +
         "</html>";
     res.write(content);
