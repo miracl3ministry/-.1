@@ -125,3 +125,8 @@ node_modules/
 ehthumbs.db
 Icon?
 Thumbs.db
+
+*.xml
+*.info
+.idea
+coverage/
