@@ -16,7 +16,7 @@ standartDeviation = function(arr)
     for (i in arr) {
         sum = sum + (i - mean)^2
     }
-    return ((sum/len)^0.5)
+    return ((sum/(len - 1))^0.5)
 }
 getMediana = function(arr)
 {
@@ -45,11 +45,11 @@ main = function(log = FALSE)
             medianArr[i] = median(arr)
         }
         range = 1:7
-        plot(range, meanArr[range], col = "red", type = "b", lty = "dashed", xlab="Размер генерации 1000-64000", ylab="Значения", ylim=c(1, 6))
-        lines(range, sdArr[range], col = "blue", type = "b")
-        lines(range, medianArr[range], col = "green", type = "b", lty = "dotted")
-        legend(1, 1, legend = c("mean", "sd", "median"), lty = c("dashed", "solid", "dotted"), col = c("red", "blue", "green"), x = "bottomleft")
-        # plot(range, sdArr[range], col = "blue", type = "b", lty = "dashed", xlab="Размер генерации 1000-64000", ylab="Медиана вектора")
+        par(mfrow = c(3, 1), mar = c(2, 4, 4, 2))
+        plot(range, meanArr[range], col = "red", type = "b", lty = "dashed", xlab="Размер генерации 1000-64000", ylab="mean", ylim=c(1, 6))
+        plot(range, sdArr[range], col = "blue", type = "b", xlab="Размер генерации 1000-64000", ylab="sd")
+        plot(range, medianArr[range], col = "green", type = "b", lty = "dotted", xlab="Размер генерации 1000-64000", ylab="median")
+        # legend(1, 1, legend = c("mean", "sd", "median"), lty = c("dashed", "solid", "dotted"), col = c("red", "blue", "green"), x = "bottomleft")
     } else {
         N = 1000
         for (i in 2:7) {
